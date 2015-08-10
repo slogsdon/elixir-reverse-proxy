@@ -16,9 +16,10 @@ defmodule ReverseProxy.Runner do
   end
 
   defp prepare_request(server, conn) do
-    conn = conn |> Plug.Conn.put_req_header("x-forwarded-for", conn.remote_ip)
+    conn = conn |> Plug.Conn.put_req_header("x-forwarded-for", conn.remote_ip |> ip_to_string)
     method = conn.method |> String.downcase |> String.to_atom
     url = "#{conn.scheme}://#{server}#{conn.request_path}?#{conn.query_string}"
+    IO.puts "requesting: #{url}"
     headers = conn.req_headers
     {:ok, body, _conn} = Plug.Conn.read_body(conn)
 
@@ -37,9 +38,11 @@ defmodule ReverseProxy.Runner do
   defp put_resp_headers(conn, []), do: conn
   defp put_resp_headers(conn, [{header, value}|rest]) do
     conn
-      |> Plug.Conn.put_resp_header(header, value)
+      |> Plug.Conn.put_resp_header(header |> String.downcase, value)
       |> put_resp_headers(rest)
   end
+
+  defp ip_to_string({a,b,c,d}), do: "#{a}.#{b}.#{c}.#{d}"
 
   defp upstream_select(servers) do
     servers |> hd
