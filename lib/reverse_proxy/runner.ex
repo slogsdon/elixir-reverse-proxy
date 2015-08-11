@@ -19,7 +19,6 @@ defmodule ReverseProxy.Runner do
     conn = conn |> Plug.Conn.put_req_header("x-forwarded-for", conn.remote_ip |> ip_to_string)
     method = conn.method |> String.downcase |> String.to_atom
     url = "#{conn.scheme}://#{server}#{conn.request_path}?#{conn.query_string}"
-    IO.puts "requesting: #{url}"
     headers = conn.req_headers
     {:ok, body, _conn} = Plug.Conn.read_body(conn)
 
