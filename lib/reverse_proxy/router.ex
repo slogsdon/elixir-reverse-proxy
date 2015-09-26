@@ -1,4 +1,9 @@
 defmodule ReverseProxy.Router do
+  @moduledoc """
+  A Plug for routing requests to either be serverd from cache
+  or from a set of upstream servers.
+  """
+
   use Plug.Router
 
   plug :match

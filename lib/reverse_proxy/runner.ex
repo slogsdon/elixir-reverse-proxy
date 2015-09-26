@@ -1,4 +1,8 @@
 defmodule ReverseProxy.Runner do
+  @moduledoc """
+  """
+
+  @typedoc "Representation of an upstream service."
   @type upstream :: [String.t] | {Atom.t, Keyword.t}
 
   @spec retreive(Plug.Conn.t, upstream) :: Plug.Conn.t
@@ -11,12 +15,17 @@ defmodule ReverseProxy.Runner do
     server = upstream_select(servers)
     {method, url, body, headers} = prepare_request(server, conn)
 
-    HTTPoison.request(method, url, body, headers, timeout: 5_000)
+    method
+      |> HTTPoison.request(url, body, headers, timeout: 5_000)
       |> process_response(conn)
   end
 
   defp prepare_request(server, conn) do
-    conn = conn |> Plug.Conn.put_req_header("x-forwarded-for", conn.remote_ip |> ip_to_string)
+    conn = conn
+            |> Plug.Conn.put_req_header(
+              "x-forwarded-for",
+              conn.remote_ip |> ip_to_string
+            )
     method = conn.method |> String.downcase |> String.to_atom
     url = "#{conn.scheme}://#{server}#{conn.request_path}?#{conn.query_string}"
     headers = conn.req_headers

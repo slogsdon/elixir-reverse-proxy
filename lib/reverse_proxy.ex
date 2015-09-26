@@ -1,18 +1,19 @@
 defmodule ReverseProxy do
+  @moduledoc """
+  A Plug based, reverse proxy server.
+
+  `ReverseProxy` can act as a standalone service or as part of a plug
+  pipeline in an existing application.
+  """
+
   use Application
 
-  # See http://elixir-lang.org/docs/stable/elixir/Application.html
-  # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
     children = [
-      # Define workers and child supervisors to be supervised
-      # worker(ReverseProxy.Worker, [arg1, arg2, arg3])
     ]
 
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: ReverseProxy.Supervisor]
     Supervisor.start_link(children, opts)
   end

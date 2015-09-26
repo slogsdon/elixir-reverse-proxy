@@ -28,6 +28,7 @@ defmodule ReverseProxy.Mixfile do
      {:earmark, "~> 0.1.17", only: :docs},
      {:ex_doc, "~> 0.7.3", only: :docs},
 
+     {:dogma, "~> 0.0", only: :test},
      {:excoveralls, "~> 0.3.11", only: :test},
      {:dialyze, "~> 0.2.0", only: :test}]
   end
