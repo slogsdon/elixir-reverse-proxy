@@ -11,15 +11,21 @@ defmodule ReverseProxy.Runner do
     options = plug.init(opts)
     plug.call(conn, options)
   end
-  def retreive(conn, servers) do
+
+  @spec retreive(Plug.Conn.t, upstream, Atom.t) :: Plug.Conn.t
+  def retreive(conn, servers, client \\ HTTPoison) do
     server = upstream_select(servers)
     {method, url, body, headers} = prepare_request(server, conn)
 
     method
-      |> HTTPoison.request(url, body, headers, timeout: 5_000)
+      |> client.request(url, body, headers, timeout: 5_000)
       |> process_response(conn)
   end
 
+  @spec prepare_request(String.t, Plug.Conn.t) :: {Atom.t,
+                                                  String.t,
+                                                  String.t,
+                                                  [{String.t,String.t}]}
   defp prepare_request(server, conn) do
     conn = conn
             |> Plug.Conn.put_req_header(
@@ -34,6 +40,7 @@ defmodule ReverseProxy.Runner do
     {method, url, body, headers}
   end
 
+  @spec process_response({Atom.t, Map.t}, Plug.Conn.t) :: Plug.Conn.t
   defp process_response({:error, _}, conn) do
     conn |> Plug.Conn.send_resp(502, "Bad Gateway")
   end
@@ -43,6 +50,7 @@ defmodule ReverseProxy.Runner do
       |> Plug.Conn.send_resp(response.status_code, response.body)
   end
 
+  @spec put_resp_headers(Plug.Conn.t, [{String.t, String.t}]) :: Plug.Conn.t
   defp put_resp_headers(conn, []), do: conn
   defp put_resp_headers(conn, [{header, value}|rest]) do
     conn
