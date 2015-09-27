@@ -1,0 +1,12 @@
+language: elixir
+elixir:
+  - 1.0.5
+  - 1.1.0
+otp_release:
+  - 17.3
+  - 18.1
+before_script:
+  - MIX_ENV=test mix do deps.get, compile
+after_success:
+  - MIX_ENV=test mix coveralls.travis
+  - MIX_ENV=test mix dogma
