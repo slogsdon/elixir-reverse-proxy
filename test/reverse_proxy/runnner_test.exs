@@ -7,7 +7,7 @@ defmodule ReverseProxy.RunnerTest do
 
     conn = ReverseProxy.Runner.retreive(
       conn,
-      {__MODULE__.SuccessPlug, []}
+      {ReverseProxyTest.SuccessPlug, []}
     )
 
     assert conn.status == 200
@@ -19,7 +19,7 @@ defmodule ReverseProxy.RunnerTest do
 
     conn = ReverseProxy.Runner.retreive(
       conn,
-      {__MODULE__.FailurePlug, []}
+      {ReverseProxyTest.FailurePlug, []}
     )
 
     assert conn.status == 500
@@ -32,7 +32,7 @@ defmodule ReverseProxy.RunnerTest do
     conn = ReverseProxy.Runner.retreive(
       conn,
       ["localhost"],
-      __MODULE__.SuccessHTTP
+      ReverseProxyTest.SuccessHTTP
     )
 
     assert conn.status == 200
@@ -45,35 +45,11 @@ defmodule ReverseProxy.RunnerTest do
     conn = ReverseProxy.Runner.retreive(
       conn,
       ["localhost"],
-      __MODULE__.FailureHTTP
+      ReverseProxyTest.SuccessHTTP
     )
 
     assert conn.status == 502
     assert conn.resp_body == "Bad Gateway"
   end
-
-  # fixtures
-
-  defmodule SuccessPlug do
-    def init(opts), do: opts
-    def call(conn, _) do
-      conn |> Plug.Conn.resp(200, "success")
-    end
-  end
-  defmodule FailurePlug do
-    def init(opts), do: opts
-    def call(conn, _) do
-      conn |> Plug.Conn.resp(500, "failure")
-    end
-  end
-  defmodule SuccessHTTP do
-    def request(_method, _url, _body, _headers, _opts \\ []) do
-      {:ok, %{:headers => [], :status_code => 200, :body => "success"}}
-    end
-  end
-  defmodule FailureHTTP do
-    def request(_method, _url, _body, _headers, _opts \\ []) do
-      {:error, "failure"}
-    end
   end
 end
