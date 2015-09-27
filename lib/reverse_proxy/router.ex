@@ -6,25 +6,37 @@ defmodule ReverseProxy.Router do
 
   use Plug.Router
 
+  @default_used false
+
   plug :match
   plug :dispatch
 
-  for {host, servers} <- Application.get_env(ReverseProxy, :upstreams, []) do
-    @servers servers
+  for {host, upstream} <- Application.get_env(ReverseProxy, :upstreams, []) do
+    @upstream upstream
+    if host == :_ do
+      host = nil
+      @default_used true
+    end
     match _, host: host do
-      upstream = fn conn ->
-        runner = Application.get_env(ReverseProxy, :runner, ReverseProxy.Runner)
-        runner.retreive(conn, @servers)
-      end
-
-      if Application.get_env(ReverseProxy, :cache, false) do
-        cacher = Application.get_env(ReverseProxy, :cacher, ReverseProxy.Cache)
-        cacher.serve(conn, upstream)
-      else
-        upstream.(conn)
-      end
+      match_internal(conn, @upstream)
     end
   end
 
-  match _, do: conn |> send_resp(400, "Bad Request")
+  unless @default_used do
+    match _, do: conn |> send_resp(400, "Bad Request")
+  end
+
+  def match_internal(conn, upstream) do
+    callback = fn conn ->
+      runner = Application.get_env(ReverseProxy, :runner, ReverseProxy.Runner)
+      runner.retreive(conn, upstream)
+    end
+
+    if Application.get_env(ReverseProxy, :cache, false) do
+      cacher = Application.get_env(ReverseProxy, :cacher, ReverseProxy.Cache)
+      cacher.serve(conn, callback)
+    else
+      callback.(conn)
+    end
+  end
 end

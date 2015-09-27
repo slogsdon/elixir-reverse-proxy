@@ -18,7 +18,7 @@ defmodule ReverseProxy.RouterTest do
 
   test "request with unknown host" do
     conn = conn(:get, "/")
-      |> Plug.Conn.put_req_header("host", "google.com")
+      |> Map.put(:host, "google.com")
 
     conn = ReverseProxy.Router.call(conn, [])
 
