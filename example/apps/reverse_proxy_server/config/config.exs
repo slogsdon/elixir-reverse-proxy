@@ -5,7 +5,7 @@ config :logger, :console,
   format: "$date $time [$level] $metadata$message\n",
   metadata: [:user_id]
 
-config ReverseProxy,
+config :reverse_proxy,
   upstreams: %{
     "example.com" => {PlugUpstream.Router, []}
   }

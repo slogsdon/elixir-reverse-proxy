@@ -11,7 +11,7 @@ defmodule ReverseProxy.Router do
   plug :match
   plug :dispatch
 
-  for {host, upstream} <- Application.get_env(ReverseProxy, :upstreams, []) do
+  for {host, upstream} <- Application.get_env(:reverse_proxy, :upstreams, []) do
     @upstream upstream
     if host == :_ do
       host = nil
@@ -28,12 +28,12 @@ defmodule ReverseProxy.Router do
 
   def match_internal(conn, upstream) do
     callback = fn conn ->
-      runner = Application.get_env(ReverseProxy, :runner, ReverseProxy.Runner)
+      runner = Application.get_env(:reverse_proxy, :runner, ReverseProxy.Runner)
       runner.retreive(conn, upstream)
     end
 
-    if Application.get_env(ReverseProxy, :cache, false) do
-      cacher = Application.get_env(ReverseProxy, :cacher, ReverseProxy.Cache)
+    if Application.get_env(:reverse_proxy, :cache, false) do
+      cacher = Application.get_env(:reverse_proxy, :cacher, ReverseProxy.Cache)
       cacher.serve(conn, callback)
     else
       callback.(conn)

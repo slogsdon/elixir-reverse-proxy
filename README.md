@@ -16,7 +16,7 @@ Upstream servers can be listed per-domain in the following forms:
 > Note: This structure may change in the future as the project progresses.
 
 ```elixir
-config ReverseProxy,
+config :reverse_proxy,
   # ...
   upstreams: %{ "api." => ["localhost:4000"],
                 "slogsdon.com" => ["localhost:4001"] }
@@ -29,7 +29,7 @@ Enables the caching of the responses from the upstream server.
 > Note: This feature has not yet been built to completion. The current implementation treats all requests as hit misses.
 
 ```elixir
-config ReverseProxy,
+config :reverse_proxy,
   # ...
   cache: false
 ```
@@ -66,7 +66,7 @@ end
 and the accompanying configuration:
 
 ```elixir
-config ReverseProxy,
+config :reverse_proxy,
   upstreams: %{
     "/google" => ["google.com"]
   }

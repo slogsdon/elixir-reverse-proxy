@@ -3,8 +3,8 @@ defmodule ReverseProxy.RouterTest do
   use Plug.Test
 
   setup do
-    Application.put_env(ReverseProxy, :cache, false)
-    Application.put_env(ReverseProxy, :cacher, ReverseProxy.Cache)
+    Application.put_env(:reverse_proxy, :cache, false)
+    Application.put_env(:reverse_proxy, :cacher, ReverseProxy.Cache)
   end
 
   test "request without a host" do
@@ -67,7 +67,7 @@ defmodule ReverseProxy.RouterTest do
   end
 
   test "request with known host from cache miss" do
-    Application.put_env(ReverseProxy, :cache, true)
+    Application.put_env(:reverse_proxy, :cache, true)
     conn = conn(:get, "/")
       |> Map.put(:host, "example.com")
 
@@ -78,8 +78,8 @@ defmodule ReverseProxy.RouterTest do
   end
 
   test "request with known host from cache hit" do
-    Application.put_env(ReverseProxy, :cache, true)
-    Application.put_env(ReverseProxy, :cacher, ReverseProxyTest.Cache)
+    Application.put_env(:reverse_proxy, :cache, true)
+    Application.put_env(:reverse_proxy, :cacher, ReverseProxyTest.Cache)
     conn = conn(:get, "/")
       |> Map.put(:host, "example.com")
 
