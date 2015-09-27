@@ -2,16 +2,6 @@
 
 A Plug based, reverse proxy server.
 
-## Running
-
-```elixir
-plug_adapter = Plug.Adapters.Cowboy
-options = []
-adapter_options = []
-
-plug_adapter.http ReverseProxy.Router, options, adapter_options
-```
-
 ## Configuration
 
 ### `:upstreams`
@@ -34,12 +24,50 @@ config ReverseProxy,
 
 Enables the caching of the responses from the upstream server.
 
-> Note: This feature has not yet been built.
+> Note: This feature has not yet been built to completion. The current implementation treats all requests as hit misses.
 
 ```elixir
 config ReverseProxy,
   # ...
   cache: false
+```
+
+## Running
+
+```elixir
+plug_adapter = Plug.Adapters.Cowboy
+options = []
+adapter_options = []
+
+plug_adapter.http ReverseProxy.Router, options, adapter_options
+```
+
+## Embedding
+
+`ReverseProxy` can be embedded into an existing Plug application to proxy requests to required resources in cases where CORS or JSONP are unavailable.
+
+> Note: This feature has not been thoroughly flushed out, so it might not yet act as described.
+
+The following code leverages `Plug.Router.forward/2` to pass requests to the `/google` path to `ReverseProxy`:
+
+```elixir
+defmodule PlugReverseProxy.Router do
+  use Plug.Router
+
+  plug :match
+  plug :dispatch
+
+  forward "/google", to: ReverseProxy.Router
+end
+```
+
+and the accompanying configuration:
+
+```elixir
+config ReverseProxy,
+  upstreams: %{
+    "/google" => ["google.com"]
+  }
 ```
 
 ## License
