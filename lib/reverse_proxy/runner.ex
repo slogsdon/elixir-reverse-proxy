@@ -1,5 +1,6 @@
 defmodule ReverseProxy.Runner do
   @moduledoc """
+  Retreives content from an upstream.
   """
 
   @typedoc "Representation of an upstream service."

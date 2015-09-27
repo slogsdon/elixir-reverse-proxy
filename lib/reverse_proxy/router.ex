@@ -13,16 +13,18 @@ defmodule ReverseProxy.Router do
     @servers servers
     match _, host: host do
       upstream = fn conn ->
-        ReverseProxy.Runner.retreive(conn, @servers)
+        runner = Application.get_env(ReverseProxy, :runner, ReverseProxy.Runner)
+        runner.retreive(conn, @servers)
       end
 
       if Application.get_env(ReverseProxy, :cache, false) do
-        ReverseProxy.Cache.serve(conn, upstream)
+        cacher = Application.get_env(ReverseProxy, :cacher, ReverseProxy.Cache)
+        cacher.serve(conn, upstream)
       else
         upstream.(conn)
       end
     end
   end
 
-  match _, do: conn |> send_resp(400, "")
+  match _, do: conn |> send_resp(400, "Bad Request")
 end
