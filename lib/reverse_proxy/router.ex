@@ -1,6 +1,6 @@
 defmodule ReverseProxy.Router do
   @moduledoc """
-  A Plug for routing requests to either be serverd from cache
+  A Plug for routing requests to either be served from cache
   or from a set of upstream servers.
   """
 
