@@ -3,7 +3,7 @@ defmodule ReverseProxy.Mixfile do
 
   def project do
     [app: :reverse_proxy,
-     version: "0.1.0-dev",
+     version: "0.1.0",
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -36,16 +36,11 @@ defmodule ReverseProxy.Mixfile do
   defp description do
     """
     A Plug based, reverse proxy server.
-
-    Upstream servers can be listed per-domain in the following forms:
-
-    - List of remote nodes, e.g. `["host:4000", "host:4001"]`
-    - A `{plug, options}` tuple, useful for umbrella applications
     """
   end
 
   defp package do
-    %{contributors: ["Shane Logsdon"],
+    %{maintainers: ["Shane Logsdon"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/slogsdon/elixir-reverse-proxy"}}
   end
