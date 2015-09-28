@@ -18,25 +18,11 @@ defmodule ReverseProxy.Router do
       @default_used true
     end
     match _, host: host do
-      match_internal(conn, @upstream)
+      ReverseProxy.call(conn, upstream: @upstream)
     end
   end
 
   unless @default_used do
     match _, do: conn |> send_resp(400, "Bad Request")
-  end
-
-  def match_internal(conn, upstream) do
-    callback = fn conn ->
-      runner = Application.get_env(:reverse_proxy, :runner, ReverseProxy.Runner)
-      runner.retreive(conn, upstream)
-    end
-
-    if Application.get_env(:reverse_proxy, :cache, false) do
-      cacher = Application.get_env(:reverse_proxy, :cacher, ReverseProxy.Cache)
-      cacher.serve(conn, callback)
-    else
-      callback.(conn)
-    end
   end
 end

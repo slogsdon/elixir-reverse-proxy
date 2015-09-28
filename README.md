@@ -59,17 +59,8 @@ defmodule PlugReverseProxy.Router do
   plug :match
   plug :dispatch
 
-  forward "/google", to: ReverseProxy.Router
+  forward "/google", to: ReverseProxy, upstream: ["google.com"]
 end
-```
-
-and the accompanying configuration:
-
-```elixir
-config :reverse_proxy,
-  upstreams: %{
-    "/google" => ["google.com"]
-  }
 ```
 
 ## License

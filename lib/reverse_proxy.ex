@@ -7,7 +7,28 @@ defmodule ReverseProxy do
   """
 
   use Application
+  @behaviour Plug
 
+  @spec init(Keyword.t) :: Keyword.t
+  def init(opts), do: opts
+
+  @spec call(Plug.Conn.t, Keyword.t) :: Plug.Conn.t
+  def call(conn, opts) do
+    upstream = Keyword.get(opts, :upstream, [])
+    callback = fn conn ->
+      runner = Application.get_env(:reverse_proxy, :runner, ReverseProxy.Runner)
+      runner.retreive(conn, upstream)
+    end
+
+    if Application.get_env(:reverse_proxy, :cache, false) do
+      cacher = Application.get_env(:reverse_proxy, :cacher, ReverseProxy.Cache)
+      cacher.serve(conn, callback)
+    else
+      callback.(conn)
+    end
+  end
+
+  @spec start(term, term) :: term
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
