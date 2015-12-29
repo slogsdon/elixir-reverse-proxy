@@ -17,7 +17,6 @@ defmodule ReverseProxy.Runner do
   def retreive(conn, servers, client \\ HTTPoison) do
     server = upstream_select(servers)
     {method, url, body, headers} = prepare_request(server, conn)
-
     method
       |> client.request(url, body, headers, timeout: 5_000)
       |> process_response(conn)
@@ -35,8 +34,8 @@ defmodule ReverseProxy.Runner do
             )
     method = conn.method |> String.downcase |> String.to_atom
     url = "#{conn.scheme}://#{server}#{conn.request_path}?#{conn.query_string}"
-    headers = conn.req_headers
-    {:ok, body, _conn} = Plug.Conn.read_body(conn)
+    headers = conn.req_headers |> Enum.map fn {k, v} -> {k |> String.capitalize, v} end
+    body = conn.body_params |> Plug.Conn.Query.encode
 
     {method, url, body, headers}
   end
