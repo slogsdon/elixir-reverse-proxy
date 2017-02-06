@@ -57,6 +57,18 @@ defmodule ReverseProxy.RunnerTest do
     assert conn.resp_body == "success"
   end
 
+  test "retrieve/3 - partial body" do
+    conn =
+      conn(:post, "/", String.duplicate("_", 8_000_000 + 1))
+      |> put_req_header("content-type", "application/json")
+      |> ReverseProxy.Runner.retreive(
+           ["localhost"],
+           ReverseProxyTest.BodyLength
+         )
+
+    assert conn.resp_body == "8000001"
+  end
+
   test "retreive/3 - http - success with response headers" do
     conn = conn(:get, "/")
     headers = ReverseProxyTest.SuccessHTTP.headers
