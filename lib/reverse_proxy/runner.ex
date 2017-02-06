@@ -33,6 +33,9 @@ defmodule ReverseProxy.Runner do
               "x-forwarded-for",
               conn.remote_ip |> ip_to_string
             )
+            |> Plug.Conn.delete_req_header(
+              "transfer-encoding"
+            )
     method = conn.method |> String.downcase |> String.to_atom
     url = "#{conn.scheme}://#{server}#{conn.request_path}?#{conn.query_string}"
     headers = conn.req_headers
