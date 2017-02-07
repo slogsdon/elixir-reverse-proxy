@@ -38,7 +38,9 @@ defmodule ReverseProxy do
     end
   end
 
-  @spec start(term, term) :: term
+  @spec start(term, term) :: {:error, term}
+                           | {:ok, pid}
+                           | {:ok, pid, term}
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
