@@ -3,14 +3,14 @@ defmodule ReverseProxy.Mixfile do
 
   def project do
     [app: :reverse_proxy,
-     version: "0.2.0",
+     version: "0.3.0",
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps,
+     deps: deps(),
      name: "ReverseProxy",
-     description: description,
-     package: package,
+     description: description(),
+     package: package(),
      docs: [extras: ["README.md"],
             main: "readme"],
      test_coverage: [tool: ExCoveralls]]
@@ -36,7 +36,7 @@ defmodule ReverseProxy.Mixfile do
 
   defp description do
     """
-    A Plug based, reverse proxy server.
+    A Plug based reverse proxy server.
     """
   end
 

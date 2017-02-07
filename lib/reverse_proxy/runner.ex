@@ -59,7 +59,7 @@ defmodule ReverseProxy.Runner do
                     {[body], conn}
                 end
             end,
-            fn _ -> end
+            fn _ -> nil end
           )
         }
     end

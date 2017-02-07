@@ -1,7 +1,7 @@
 defmodule ReverseProxyTest.SuccessHTTP do
   def request(_method, _url, _body, _headers, _opts \\ []) do
     {:ok, %{
-      :headers => headers,
+      :headers => headers(),
       :status_code => 200,
       :body => "success"
     }}
