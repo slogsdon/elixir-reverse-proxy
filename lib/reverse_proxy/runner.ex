@@ -3,17 +3,19 @@ defmodule ReverseProxy.Runner do
   Retreives content from an upstream.
   """
 
+  alias Plug.Conn
+
   @typedoc "Representation of an upstream service."
   @type upstream :: [String.t] | {Atom.t, Keyword.t}
 
-  @spec retreive(Plug.Conn.t, upstream) :: Plug.Conn.t
+  @spec retreive(Conn.t, upstream) :: Conn.t
   def retreive(conn, upstream)
   def retreive(conn, {plug, opts}) when plug |> is_atom do
     options = plug.init(opts)
     plug.call(conn, options)
   end
 
-  @spec retreive(Plug.Conn.t, upstream, Atom.t) :: Plug.Conn.t
+  @spec retreive(Conn.t, upstream, Atom.t) :: Conn.t
   def retreive(conn, servers, client \\ HTTPoison) do
     server = upstream_select(servers)
     {method, url, body, headers} = prepare_request(server, conn)
@@ -23,23 +25,23 @@ defmodule ReverseProxy.Runner do
       |> process_response(conn)
   end
 
-  @spec prepare_request(String.t, Plug.Conn.t) :: {Atom.t,
+  @spec prepare_request(String.t, Conn.t) :: {Atom.t,
                                                   String.t,
                                                   String.t,
                                                   [{String.t, String.t}]}
   defp prepare_request(server, conn) do
     conn = conn
-            |> Plug.Conn.put_req_header(
+            |> Conn.put_req_header(
               "x-forwarded-for",
               conn.remote_ip |> ip_to_string
             )
-            |> Plug.Conn.delete_req_header(
+            |> Conn.delete_req_header(
               "transfer-encoding"
             )
     method = conn.method |> String.downcase |> String.to_atom
     url = "#{conn.scheme}://#{server}#{conn.request_path}?#{conn.query_string}"
     headers = conn.req_headers
-    body = case Plug.Conn.read_body(conn) do
+    body = case Conn.read_body(conn) do
       {:ok, body, _conn} ->
         body
       {:more, body, conn} ->
@@ -52,7 +54,7 @@ defmodule ReverseProxy.Runner do
               nil ->
                 {:halt, nil}
               conn ->
-                case Plug.Conn.read_body(conn) do
+                case Conn.read_body(conn) do
                   {:ok, body, _conn} ->
                     {[body], nil}
                   {:more, body, conn} ->
@@ -67,21 +69,21 @@ defmodule ReverseProxy.Runner do
     {method, url, body, headers}
   end
 
-  @spec process_response({Atom.t, Map.t}, Plug.Conn.t) :: Plug.Conn.t
+  @spec process_response({Atom.t, Map.t}, Conn.t) :: Conn.t
   defp process_response({:error, _}, conn) do
-    conn |> Plug.Conn.send_resp(502, "Bad Gateway")
+    conn |> Conn.send_resp(502, "Bad Gateway")
   end
   defp process_response({:ok, response}, conn) do
     conn
       |> put_resp_headers(response.headers)
-      |> Plug.Conn.send_resp(response.status_code, response.body)
+      |> Conn.send_resp(response.status_code, response.body)
   end
 
-  @spec put_resp_headers(Plug.Conn.t, [{String.t, String.t}]) :: Plug.Conn.t
+  @spec put_resp_headers(Conn.t, [{String.t, String.t}]) :: Conn.t
   defp put_resp_headers(conn, []), do: conn
   defp put_resp_headers(conn, [{header, value} | rest]) do
     conn
-      |> Plug.Conn.put_resp_header(header |> String.downcase, value)
+      |> Conn.put_resp_header(header |> String.downcase, value)
       |> put_resp_headers(rest)
   end
 
