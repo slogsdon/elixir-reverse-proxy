@@ -69,6 +69,17 @@ defmodule ReverseProxy.RunnerTest do
     assert conn.resp_body == "8000001"
   end
 
+  test "retrieve/3 - chunked response" do
+    conn =
+      conn(:get, "/")
+      |> ReverseProxy.Runner.retreive(
+           ["localhost"],
+           ReverseProxyTest.ChunkedResponse
+         )
+
+    assert get_resp_header(conn, "transfer-encoding") == []
+  end
+
   test "retreive/3 - http - success with response headers" do
     conn = conn(:get, "/")
     headers = ReverseProxyTest.SuccessHTTP.headers

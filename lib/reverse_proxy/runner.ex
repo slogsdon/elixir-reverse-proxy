@@ -76,6 +76,7 @@ defmodule ReverseProxy.Runner do
   defp process_response({:ok, response}, conn) do
     conn
       |> put_resp_headers(response.headers)
+      |> Conn.delete_resp_header("transfer-encoding")
       |> Conn.send_resp(response.status_code, response.body)
   end
 
