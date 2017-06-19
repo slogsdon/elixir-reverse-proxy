@@ -33,7 +33,7 @@ defmodule ReverseProxy.Runner do
     conn = conn
             |> Conn.put_req_header(
               "x-forwarded-for",
-              conn.remote_ip |> :inet.ntoa
+              conn.remote_ip |> :inet.ntoa |> to_string
             )
             |> Conn.delete_req_header(
               "transfer-encoding"
