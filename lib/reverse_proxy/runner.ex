@@ -33,7 +33,7 @@ defmodule ReverseProxy.Runner do
     conn = conn
             |> Conn.put_req_header(
               "x-forwarded-for",
-              conn.remote_ip |> ip_to_string
+              conn.remote_ip |> :inet.ntoa |> to_string
             )
             |> Conn.delete_req_header("host")
             |> Conn.delete_req_header(
@@ -88,8 +88,6 @@ defmodule ReverseProxy.Runner do
       |> Conn.put_resp_header(header |> String.downcase, value)
       |> put_resp_headers(rest)
   end
-
-  defp ip_to_string({a, b, c, d}), do: "#{a}.#{b}.#{c}.#{d}"
 
   defp upstream_select(servers) do
     servers |> hd
