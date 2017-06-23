@@ -95,6 +95,26 @@ defmodule ReverseProxy.RunnerTest do
     assert conn.resp_headers == headers
   end
 
+  test "retreive/3 - http - location header rewrite" do
+    conn = conn(:get, "/")
+     |> put_req_header("host", "localhost:4000")
+
+    conn = ReverseProxy.Runner.retreive(
+      conn,
+      ["localhost:5001"],
+      ReverseProxyTest.RedirectHTTP
+    )
+
+    assert conn.status == 301
+    assert conn.resp_body == """
+    <html><body>You are being <a href="http://localhost:4000/foo">redirected</a>.</body></html>
+    """
+    assert conn.resp_headers == [
+      {"cache-control", "max-age=0, private, must-revalidate"},
+      {"location", "http://localhost:4000/foo"},
+    ]
+  end
+
   test "retreive/3 - http - failure" do
     conn = conn(:get, "/")
 

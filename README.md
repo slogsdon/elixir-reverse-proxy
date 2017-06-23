@@ -27,7 +27,7 @@ From [Wikipedia](https://wikipedia.org/wiki/Reverse_proxy):
 
 Upstream servers can be listed per-domain in the following forms:
 
-- List of remote nodes, e.g. `["host:4000", "host:4001"]`
+- List of remote nodes, e.g. `["http://host:4000", "http://host:4001"]`
 - A `{plug, options}` tuple, useful for umbrella applications
 
 > Note: This structure may change in the future as the project progresses.
@@ -35,9 +35,13 @@ Upstream servers can be listed per-domain in the following forms:
 ```elixir
 config :reverse_proxy,
   # ...
-  upstreams: %{ "api." => ["localhost:4000"],
-                "slogsdon.com" => ["localhost:4001"] }
+  upstreams: %{ "foobar.localhost" => ["http://www.example.com"],
+                "api." => ["http://localhost:4000"],
+                "slogsdon.com" => ["http://localhost:4001"] }
 ```
+
+You might need to create `foobar.localhost in `/etc/hosts` and replace
+example.com with an actual site.
 
 ### `:cache`
 
