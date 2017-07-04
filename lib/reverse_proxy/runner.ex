@@ -40,7 +40,7 @@ defmodule ReverseProxy.Runner do
               "transfer-encoding"
             )
     method = conn.method |> String.downcase |> String.to_atom
-    url = "#{conn.scheme}://#{server}#{conn.request_path}?#{conn.query_string}"
+    url = "#{server}#{conn.request_path}?#{conn.query_string}"
     headers = conn.req_headers
     body = case Conn.read_body(conn) do
       {:ok, body, _conn} ->
