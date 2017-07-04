@@ -40,7 +40,7 @@ defmodule ReverseProxy.Runner do
               "transfer-encoding"
             )
     method = conn.method |> String.downcase |> String.to_atom
-    url = "#{server}#{conn.request_path}?#{conn.query_string}"
+    url = "#{prepare_server(conn.scheme, server)}#{conn.request_path}?#{conn.query_string}"
     headers = conn.req_headers
     body = case Conn.read_body(conn) do
       {:ok, body, _conn} ->
@@ -68,6 +68,14 @@ defmodule ReverseProxy.Runner do
     end
 
     {method, url, body, headers}
+  end
+
+  @spec prepare_server(String.t, String.t) :: String.t
+  defp prepare_server(scheme, server)
+  defp prepare_server(_, "http://" <> _ = server), do: server
+  defp prepare_server(_, "https://" <> _ = server), do: server
+  defp prepare_server(scheme, server) do
+    "#{scheme}://#{server}"
   end
 
   @spec process_response({Atom.t, Map.t}, Conn.t) :: Conn.t
