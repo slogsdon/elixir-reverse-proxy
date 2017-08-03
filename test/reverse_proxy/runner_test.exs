@@ -69,6 +69,26 @@ defmodule ReverseProxy.RunnerTest do
     assert conn.resp_body == "8000001"
   end
 
+  def parse(conn, opts \\ []) do
+    opts = opts
+           |> Keyword.put_new(:parsers, [:json])
+           |> Keyword.put_new(:json_decoder, Poison)
+    Plug.Parsers.call(conn, Plug.Parsers.init(opts))
+  end
+
+  test "retrieve/3 - body parsed with Poison" do
+    conn =
+      conn(:post, "/", "{\"test\": \"data\"}")
+      |> put_req_header("content-type", "application/json")
+      |> parse()
+      |> ReverseProxy.Runner.retreive(
+           ["localhost"],
+           ReverseProxyTest.Body
+         )
+
+    assert conn.resp_body == "{\"test\":\"data\"}"
+  end
+
   test "retrieve/3 - chunked response" do
     conn =
       conn(:get, "/")

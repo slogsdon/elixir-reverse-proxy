@@ -25,6 +25,39 @@ defmodule ReverseProxy.Runner do
       |> process_response(conn)
   end
 
+  @spec get_body(Conn.t) :: String.t
+  def get_body(conn) do
+    case conn.body_params do
+      %Plug.Conn.Unfetched{aspect: :body_params} ->
+        case Conn.read_body(conn) do
+          {:ok, body, _conn} ->
+            body
+          {:more, body, conn} ->
+            {:stream,
+              Stream.resource(
+                fn -> {body, conn} end,
+                fn
+                  {body, conn} ->
+                    {[body], conn}
+                  nil ->
+                    {:halt, nil}
+                  conn ->
+                    case Conn.read_body(conn) do
+                      {:ok, body, _conn} ->
+                        {[body], nil}
+                      {:more, body, conn} ->
+                        {[body], conn}
+                    end
+                end,
+                fn _ -> nil end
+              )
+            }
+        end
+      _ -> # this makes the assumption that we are dealing with JSON
+        Poison.encode!(conn.body_params)
+    end
+  end
+
   @spec prepare_request(String.t, Conn.t) :: {Atom.t,
                                                   String.t,
                                                   String.t,
@@ -42,30 +75,7 @@ defmodule ReverseProxy.Runner do
     method = conn.method |> String.downcase |> String.to_atom
     url = "#{prepare_server(conn.scheme, server)}#{conn.request_path}?#{conn.query_string}"
     headers = conn.req_headers
-    body = case Conn.read_body(conn) do
-      {:ok, body, _conn} ->
-        body
-      {:more, body, conn} ->
-        {:stream,
-          Stream.resource(
-            fn -> {body, conn} end,
-            fn
-              {body, conn} ->
-                {[body], conn}
-              nil ->
-                {:halt, nil}
-              conn ->
-                case Conn.read_body(conn) do
-                  {:ok, body, _conn} ->
-                    {[body], nil}
-                  {:more, body, conn} ->
-                    {[body], conn}
-                end
-            end,
-            fn _ -> nil end
-          )
-        }
-    end
+    body = get_body(conn)
 
     {method, url, body, headers}
   end
