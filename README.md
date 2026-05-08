@@ -1,3 +1,5 @@
+> **[shane.logsdon.io](https://shane.logsdon.io)** — writing and projects on agentic workflows, web standards, and payments engineering.
+
 # ReverseProxy
 [![Build Status](https://travis-ci.org/slogsdon/elixir-reverse-proxy.svg?branch=master)](https://travis-ci.org/slogsdon/elixir-reverse-proxy)
 [![Coverage Status](https://coveralls.io/repos/slogsdon/elixir-reverse-proxy/badge.svg?branch=master&service=github)](https://coveralls.io/github/slogsdon/elixir-reverse-proxy?branch=master)
